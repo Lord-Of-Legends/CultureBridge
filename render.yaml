@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: culturebridge
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: OPENROUTER_API_KEY
+        value: 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
