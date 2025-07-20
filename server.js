@@ -5,8 +5,6 @@ import fs from "fs";
 import path from "path";
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from "url";
-import dotenv from 'dotenv';
-dotenv.config();
 
 const app = express();
 const PORT = 5000;
@@ -14,7 +12,11 @@ const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const apiKey = process.env.OPENROUTER_API_KEY;
+const apiKey = process.env.OPENROUTER_API_KEY || "fallback-or-undefined";
+if (!apiKey) {
+  console.error("❌ OPENROUTER_API_KEY not found!");
+}
+console.log("KEY CHECK:", apiKey);
 
 app.use(cors());
 app.use(express.json());
