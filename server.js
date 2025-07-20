@@ -5,6 +5,8 @@ import fs from "fs";
 import path from "path";
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from "url";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const PORT = 5000;
@@ -34,7 +36,7 @@ app.post("/api/translate", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer ${apiKey}"
+        "Authorization": "Bearer ${process.env.OPENROUTER_API_KEY}"
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
