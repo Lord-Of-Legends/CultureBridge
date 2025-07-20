@@ -12,6 +12,8 @@ const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const apiKey = process.env.OPENROUTER_API_KEY;
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
@@ -32,7 +34,7 @@ app.post("/api/translate", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer ${apiKey}"
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
