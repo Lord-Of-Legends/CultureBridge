@@ -36,7 +36,7 @@ app.post("/api/translate", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer ${process.env.OPENROUTER_API_KEY}"
+        "Authorization": "Bearer ${apiKey}"
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
