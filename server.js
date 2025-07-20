@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-app.post("https://culturebridge.onrender.com/api/translate", async (req, res) => {
+app.post("/api/translate", async (req, res) => {
   const { text, direction } = req.body;
 
   if (!text || !direction) {
