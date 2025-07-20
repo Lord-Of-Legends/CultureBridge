@@ -35,7 +35,7 @@ app.post("/api/translate", async (req, res) => {
 
   const headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer " + process.env.OPENROUTER_API_KEY.trim()
+    "Authorization": "Bearer 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"
   };
 
   try {
