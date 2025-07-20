@@ -32,7 +32,7 @@ app.post("/api/translate", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer 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"
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
