@@ -114,6 +114,11 @@
     let totalPages = 1;
     let allNews = [];
 
+    const supabase = window.supabase.createClient(
+      'https://wtfohhwduvbevumcrxdh.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Zm9oaHdkdXZiZXZ1bWNyeGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NjUwNDYsImV4cCI6MjA2ODU0MTA0Nn0.6lowgWFdPckgMA04zqGxieIdyl_bAcWPfH8HKSq6GAc'
+    );
+
     function loadNewsFeedPage(page = 1) {
       const container = document.getElementById('news-container');
       const pageLabel = document.getElementById('news-page-label');
@@ -505,11 +510,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', loadNewsFeed);
-
-    const supabase = window.supabase.createClient(
-      'https://wtfohhwduvbevumcrxdh.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Zm9oaHdkdXZiZXZ1bWNyeGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NjUwNDYsImV4cCI6MjA2ODU0MTA0Nn0.6lowgWFdPckgMA04zqGxieIdyl_bAcWPfH8HKSq6GAc'
-    );
 
     async function loadUser() {
       const {
