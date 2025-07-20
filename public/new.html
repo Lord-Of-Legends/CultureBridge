@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gen Z Translator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="top-bar">
+    <div>Welcome, <span id="username">...</span></div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <header>
+    <h1>HLC CultureBridge</h1>
+    <div class="select-mode-hint">Use the toggle to select the language you are translating to:</div>
+  </header>
+
+  <div class="container">
+    <div class="mode-toggle-container">
+      <span id="to-genz" class="mode-label active">To Gen Z</span>
+      <div class="mode-toggle" id="mode-toggle" onclick="handleAction('mode')">
+        <div class="toggle-circle" id="toggle-circle"></div>
+      </div>
+      <span id="to-standard" class="mode-label">To Plain English</span>
+    </div>
+
+    <div class="actions">
+      <textarea id="user-input" placeholder="Type or press 'Record' to enter text!"></textarea>
+     <button class="action-button" id="mic" onclick="handleAction('mic')">
+        <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="#6a3438" viewBox="0 0 24 24"><path d="M12 15c1.65 0 3-1.35 3-3V6c0-1.65-1.35-3-3-3S9 4.35 9 6v6c0 1.65 1.35 3 3 3z"/><path d="M19 11v1c0 3.31-2.69 6-6 6s-6-2.69-6-6v-1H5v1c0 4.08 3.05 7.44 7 7.93V21h2v-1.07c3.95-.49 7-3.85 7-7.93v-1h-2z"/></svg>
+        Record
+     </button>
+      <button class="action-button" onclick="handleAction('translate')">
+        <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="#6a3438" viewBox="0 0 24 24"><path d="M5 4v3h5.5v12H14V7H19V4z"/></svg>
+        Translate
+      </button>
+    </div>
+
+    <div class="progress-container" id="progress-container">
+      <div class="progress-bar" id="translate-bar"></div>
+    </div>
+
+    <div style="margin-top: 20px; width: 100%; display: flex; justify-content: space-between; gap: 10px;">
+      <div style="flex: 1;">
+        <div style="text-align:center; margin-bottom:4px;">Profanity Meter</div>
+        <div class="meter-container">
+          <div id="input-profanity-bar" class="meter-bar"></div>
+        </div>
+      </div>
+      <div style="flex: 1;">
+        <div style="text-align:center; margin-bottom:4px;">Harm Meter</div>
+        <div class="meter-container">
+          <div id="input-selfharm-bar" class="meter-bar"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="output-box" id="output-text">
+      See Translation Here...
+    </div>
+
+<div style="text-align: center; margin-top: 20px; font-style: italic; color: #fce4ec;">
+  <small><i>CultureBridge can make mistakes. Check important info.</i></small>
+</div>
+
+
+    <div class="actions">
+      <button onclick="handleAction('copy')" class="action-button">
+        <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="#6a3438" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        Copy
+      </button>
+      <button onclick="handleAction('share')" class="action-button">
+        <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="#6a3438" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3S19.66 2 18 2s-3 1.34-3 3c0 .24.04.47.09.7l-7 4.11c-.54-.5-1.25-.81-2.04-.81-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7 4.11c-.05.23-.09.46-.09.7 0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3z"/></svg>
+        Share
+      </button>
+    </div>
+  </div>
+
+  <div class="history" id="history">
+    <h3>History</h3>
+  </div>
+  <button onclick="clearHistory()" class="action-button history" style="margin-top: 20px;">Clear History</button>
+
+  <div class="news-feed">
+    <h3 id="news-page-label">Dictionary</h3>
+    
+    <div id="news-controls" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+      <button onclick="changeNewsPage('prev')" class="action-button">⬅ Prev</button>
+      <input id="news-page-input" type="number" min="1" style="width: 50px; padding: 5px; border-radius: 5px; border: none;" onchange="jumpToNewsPage()" />
+      <button onclick="changeNewsPage('next')" class="action-button">Next ➡</button>
+    </div>
+
+    <div id="news-container">[DICTIONARY DIV]</div>
+  </div>
+
+
+
+  <div id="popup"></div>
+
+  <script>
+    let isTranslating = false;
+    let mode = 'genz';
+    const recognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    ? new (window.SpeechRecognition || window.webkitSpeechRecognition)()
+    : null;
+    let isRecording = false;
+
+
+    let currentPage = 1;
+    let totalPages = 1;
+    let allNews = [];
+
+    function loadNewsFeedPage(page = 1) {
+      const container = document.getElementById('news-container');
+      const pageLabel = document.getElementById('news-page-label');
+      const pageInput = document.getElementById('news-page-input');
+
+      const start = (page - 1) * 10;
+      const end = start + 10;
+      const items = allNews.slice(start, end);
+
+      container.innerHTML = '';
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'news-item';
+        div.innerHTML = `<b>Plain English:</b> ${item.input}<br/><b>Gen Z:</b> ${item.output}`;
+        container.appendChild(div);
+      });
+
+      pageLabel.textContent = `Page ${currentPage} of ${totalPages}`;
+      pageInput.value = currentPage;
+    }
+
+    function changeNewsPage(direction) {
+      if (direction === 'next' && currentPage < totalPages) {
+        currentPage++;
+        loadNewsFeedPage(currentPage);
+      } else if (direction === 'prev' && currentPage > 1) {
+        currentPage--;
+        loadNewsFeedPage(currentPage);
+      }
+    }
+
+    function jumpToNewsPage() {
+      const input = document.getElementById('news-page-input');
+      const num = parseInt(input.value);
+      if (isNaN(num) || num < 1) {
+        showPopup("Page number too small.");
+        return;
+      }
+      if (num > totalPages) {
+        showPopup("Page number too large.");
+        return;
+      }
+      currentPage = num;
+      loadNewsFeedPage(currentPage);
+    }
+
+
+    async function loadNewsFeed() {
+      const { data, error } = await supabase
+        .from('dictionary')
+        .select('input, output');
+
+      if (error) {
+        const container = document.getElementById('news-container');
+        container.innerHTML = '<div class="news-item">Failed to load news feed.</div>';
+        return;
+      }
+
+      allNews = data;
+      totalPages = Math.ceil(allNews.length / 10);
+      currentPage = 1;
+      loadNewsFeedPage(currentPage);
+    }
+
+
+
+    function showPopup(message) {
+      const popup = document.getElementById('popup');
+      popup.textContent = message;
+      popup.style.display = 'block';
+      setTimeout(() => popup.style.display = 'none', 2500);
+    }
+
+    function shakeButton(el) {
+      el.classList.add('shake');
+      setTimeout(() => el.classList.remove('shake'), 400);
+    }
+
+    function setButtonDimmed(dim) {
+      document.querySelectorAll('.actions button, .mic-button, .mode-toggle')
+        .forEach(btn => btn.classList.toggle('dimmed', dim));
+    }
+
+
+    function startVoiceInput() {
+      if (!recognition) return alert("Speech Recognition not supported");
+
+      const micBtn = document.getElementById('mic');
+      micBtn.classList.add('recording');
+      isRecording = true;
+      setButtonDimmed(true);
+
+      recognition.start();
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('user-input').value = transcript;
+      };
+
+      recognition.onend = () => {
+        micBtn.classList.remove('recording');
+        isRecording = false;
+        setButtonDimmed(false);
+      };
+
+      recognition.onerror = () => {
+        micBtn.classList.remove('recording');
+        isRecording = false;
+        setButtonDimmed(false);
+        showPopup("Voice input error occurred.");
+      };
+    }
+
+
+    function handleAction(type) {
+      const el = {
+        translate: document.querySelector('.action-button:nth-of-type(2)'),
+        copy: document.querySelector('.action-button:nth-of-type(3)'),
+        share: document.querySelector('.action-button:nth-of-type(4)'),
+        mic: document.getElementById('mic'),
+        mode: document.getElementById('mode-toggle')
+      }[type];
+
+      if ((isTranslating || isRecording) && type !== 'translate' && type !== 'mic') {
+        const messages = {
+          copy: 'Copy is disabled during translation or recording.',
+          share: 'Sharing is locked right now.',
+          mode: 'Can’t switch modes while translating or recording.'
+        };
+        shakeButton(el);
+        setTimeout(() => showPopup(messages[type]), 400);
+        return;
+      }
+
+      if (isTranslating && type === 'translate') {
+        shakeButton(el);
+        setTimeout(() => showPopup("You're already translating!"), 400);
+        return;
+      }
+
+      if (isRecording && type === 'mic') {
+        shakeButton(el);
+        setTimeout(() => showPopup("You're already recording!"), 400);
+        return;
+      }
+
+      if (type === 'translate') return startTranslation();
+      if (type === 'copy') return copyOutput();
+      if (type === 'share') return shareOutput();
+      if (type === 'mode') return toggleMode();
+      if (type === 'mic') return startVoiceInput();
+    }
+
+
+    function toggleMode() {
+      mode = (mode === 'genz') ? 'standard' : 'genz';
+      const toggle = document.getElementById('mode-toggle');
+      toggle.classList.toggle('standard', mode === 'standard');
+      document.getElementById('toggle-circle').style.left = (mode === 'standard') ? '32px' : '2.5px';
+    }
+
+   async function analyzeFilters(inputText, outputText) {
+      const [{ data: profanityData, error: profanityError }, { data: selfharmData, error: selfharmError }] = await Promise.all([
+        supabase.from('profanity_words').select('word, weight'),
+        supabase.from('selfharm_words').select('word, weight')
+      ]);
+
+      if (profanityError || selfharmError) {
+        console.error("Error fetching filter word data", profanityError || selfharmError);
+        return;
+      }
+
+      // Build weights map
+      const buildWeightsMap = (data) => {
+        return data.reduce((map, entry) => {
+          if (entry.word) map[entry.word.toLowerCase()] = entry.weight || 1;
+          return map;
+        }, {});
+      };
+
+      const profanityWeights = buildWeightsMap(profanityData);
+      const selfharmWeights = buildWeightsMap(selfharmData);
+
+      const cleanText = (text) => {
+        return text
+          .replace(/['"`.,!?;:()\[\]{}<>\\\/_-]/g, '')
+          .replace(/\s+/g, ' ')
+          .toLowerCase()
+          .trim();
+      };
+
+      const combineScore = (text, weightsMap) => {
+        const words = cleanText(text).split(' ');
+        return words.reduce((sum, word) => sum + (weightsMap[word] || 0), 0);
+      };
+
+      const profanityScore = combineScore(inputText, profanityWeights) + combineScore(outputText, profanityWeights);
+      const selfharmScore = combineScore(inputText, selfharmWeights) + combineScore(outputText, selfharmWeights);
+
+      const scaledProfanity = Math.min(profanityScore * 20, 100);
+      const scaledSelfHarm = Math.min(selfharmScore * 20, 100);
+
+      console.log("Profanity Score:", scaledProfanity);
+      console.log("Self-Harm Score:", scaledSelfHarm);
+
+      animateFilterBar('input-profanity-bar', scaledProfanity);
+      animateFilterBar('input-selfharm-bar', scaledSelfHarm);
+    }
+
+    function animateFilterBar(id, percent) {
+      const bar = document.getElementById(id);
+      if (!bar) return;
+
+      if (bar._interval) clearInterval(bar._interval);
+
+      let current = 0;
+      const max = Math.round(percent);
+
+      bar.style.width = '0%';
+      bar.style.transition = 'none';
+      bar.style.height = '12px';
+
+      bar._interval = setInterval(() => {
+        if (current >= max) {
+          clearInterval(bar._interval);
+          return;
+        }
+        current++;
+
+        const red = Math.floor((current / 100) * 255);
+        const green = Math.floor((1 - current / 100) * 255);
+        const color = `rgb(${red}, ${green}, 0)`;
+
+        bar.style.width = `${current}%`;
+        bar.style.backgroundColor = color;
+      }, 10);
+    }
+
+
+
+    async function startTranslation() {
+      const text = document.getElementById('user-input').value.trim();
+      const bar = document.getElementById('translate-bar');
+      const container = document.getElementById('progress-container');
+
+      if (!text) return;
+
+      isTranslating = true;
+      setButtonDimmed(true);
+      bar.style.width = '0%';
+      container.style.opacity = '1';
+
+      let progress = 0;
+      let interval = setInterval(() => {
+        if (progress < 95) {
+          progress++;
+          bar.style.width = `${progress}%`;
+        }
+      }, 158);
+
+      try {
+        const res = await fetch('http://localhost:5000/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, direction: mode === 'genz' ? 'toGenZ' : 'toPlain' })
+        });
+
+        const data = await res.json();
+        document.getElementById('output-text').textContent = data.translatedText;
+
+        const user = await supabase.auth.getUser();
+        if (user.data.user) {
+          const { error } = await supabase
+            .from('history')
+            .insert({
+              user_id: user.data.user.id,
+              input: text,
+              output: data.translatedText
+            });
+
+          if (error) console.error("Supabase save error:", error.message);
+        }
+
+
+        await analyzeFilters(text, data.translatedText);
+
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.textContent = `${text} ➡️ ${data.translatedText}`;
+        document.getElementById('history').appendChild(item);
+
+        clearInterval(interval);
+        bar.style.width = '100%';
+        setTimeout(() => {
+          container.style.opacity = '0';
+          setTimeout(() => bar.style.width = '0%', 500);
+        }, 700);
+      } catch (err) {
+        clearInterval(interval);
+        alert('Translation failed');
+      } finally {
+        isTranslating = false;
+        setButtonDimmed(false);
+      }
+    }
+
+
+    function copyOutput() {
+      const output = document.getElementById('output-text');
+      const text = output.textContent.trim();
+
+      if (!text || text === "See Translation Here...") {
+        showPopup("There's nothing to copy yet!");
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        showPopup("Copied to clipboard!");
+      }).catch(() => {
+
+        const range = document.createRange();
+        range.selectNodeContents(output);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+        try {
+          const success = document.execCommand('copy');
+          showPopup(success ? "Copied to clipboard!" : "Copy failed.");
+        } catch (err) {
+          showPopup("Copy failed.");
+        }
+
+        sel.removeAllRanges();
+      });
+}
+
+
+    function shareOutput() {
+      const text = document.getElementById('output-text').textContent;
+      if (navigator.share) navigator.share({ text });
+      else alert('Share not supported.');
+    }
+
+    async function loadHistoryFromFile() {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) return;
+
+      const { data, error } = await supabase
+        .from('history')
+        .select('input, output')
+        .eq('user_id', user.data.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error("History fetch error:", error.message);
+        return;
+      }
+
+      const historyBox = document.getElementById('history');
+      historyBox.innerHTML = '';
+      data.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'history-item';
+        div.textContent = `${entry.input} ➡️ ${entry.output}`;
+        historyBox.appendChild(div);
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', loadHistoryFromFile);
+
+    async function clearHistory() {
+      if (!confirm("Clear all history? This cannot be undone.")) return;
+
+      const user = await supabase.auth.getUser();
+      if (!user.data.user) return;
+
+      const { error } = await supabase
+        .from('history')
+        .delete()
+        .eq('user_id', user.data.user.id);
+
+      if (error) {
+        showPopup("Failed to clear history.");
+      } else {
+        document.getElementById('history').innerHTML = '';
+        showPopup("History cleared!");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadNewsFeed);
+
+    const supabase = window.supabase.createClient(
+      'https://wtfohhwduvbevumcrxdh.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0Zm9oaHdkdXZiZXZ1bWNyeGRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI5NjUwNDYsImV4cCI6MjA2ODU0MTA0Nn0.6lowgWFdPckgMA04zqGxieIdyl_bAcWPfH8HKSq6GAc'
+    );
+
+    async function loadUser() {
+      const {
+        data: { user },
+        error
+      } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        document.getElementById('username').textContent = "Guest 😢";
+      } else {
+        document.getElementById('username').textContent = user.email;
+      }
+    }
+    loadUser();
+
+  async function checkAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = "auth.html";
+    } else {
+      const username = session.user.email;
+      document.getElementById('username-display').textContent = `User: ${username}`;
+    }
+  }
+
+  checkAuth();
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = "auth.html";
+  }
+
+  </script>
+</body>
+</html>
