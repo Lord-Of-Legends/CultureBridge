@@ -12,12 +12,6 @@ const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const apiKey = process.env.OPENROUTER_API_KEY || "fallback-or-undefined";
-if (!apiKey) {
-  console.error("❌ OPENROUTER_API_KEY not found!");
-}
-console.log("KEY CHECK:", apiKey);
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
@@ -33,15 +27,13 @@ app.post("/api/translate", async (req, res) => {
     ? `You are a translator for Gen Z language and you can translate to and from Gen Z to normal English. Act as a translator for future prompts and do not break character. Do not say any other thing apart from the translated sentence. No personal input. Translate the following from Gen Z slang to plain English only. Translate: "\n\n${text}"`
     : `You are a translator for Gen Z language and you can translate to and from Gen Z to normal English. Act as a translator for future prompts and do not break character. Do not say any other thing apart from the translated sentence. No personal input. Translate the following from plain English to Gen Z slang only. Translate: "\n\n${text}"`;
 
-  const headers = {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer ${apiKey}"
-  };
-
   try {
     const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-      headers,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer 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"
+      },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [{ role: "user", content: prompt }],
@@ -58,13 +50,13 @@ app.post("/api/translate", async (req, res) => {
       return res.status(500).json({ error: "No valid response from AI" });
     }
 
+
     res.json({ translatedText: result });
   } catch (err) {
     console.error("Backend error:", err.message);
     res.status(500).json({ error: "Translation failed" });
   }
 });
-
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "new.html"));
