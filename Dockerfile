@@ -1,43 +1,41 @@
-# Use Ubuntu as base
+# Base image
 FROM ubuntu:22.04
 
-# Avoid UI prompts during install
+# Prevents some interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-  curl \
-  wget \
-  git \
-  unzip \
-  sudo \
-  nodejs \
-  npm \
-  libcurl4-openssl-dev \
-  libssl-dev \
-  && apt-get clean
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y curl gnupg ca-certificates build-essential nodejs npm git && \
+    apt-get clean
 
-# Install Node.js 18
+# Install Node.js v18 via NodeSource (skip error by removing old node)
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs && \
+    npm install -g npm@latest
 
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Pull the LLaMA 3 model (free and fast)
-RUN ollama pull llama3
+# Pull LLaMA 2 model
+RUN ollama pull llama2
 
-# Set working directory
+# Create app directory
 WORKDIR /app
 
-# Copy everything
-COPY . .
-
-# Install Node.js dependencies
+# Copy package files and install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Expose both ports: 11434 for Ollama, 5000 for Node server
+# Copy the rest of the application
+COPY . .
+
+# Copy the startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expose necessary ports (adjust if needed)
 EXPOSE 11434 5000
 
-# Run Ollama in background and start Node.js server
-CMD ollama serve & sleep 5 && node server.js
+# Start Ollama and your app
+CMD ["/start.sh"]

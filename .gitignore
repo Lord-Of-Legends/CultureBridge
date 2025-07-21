@@ -2,3 +2,5 @@ node_modules/
 push-to-github.bat 
 commit.bat
 node_modules/
+commit.bat
+node_modules/

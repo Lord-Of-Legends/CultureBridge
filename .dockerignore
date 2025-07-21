@@ -1,3 +1,6 @@
 node_modules
 .env
-npm-debug.log
+.git
+*.log
+*.bat
+Dockerfile
