@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# Start Ollama server in background
+# Start Ollama in the background
 ollama serve &
 
-# Wait for Ollama server to become ready
+# Wait for Ollama to initialize
+echo "Starting Ollama..."
 sleep 5
 
-# Pull the model once server is up
-ollama pull llama2
+# Optional: Pull llama2-uncensored again (if not pre-pulled in Dockerfile)
+ollama pull llama2-uncensored
 
-# Start your Node.js app
-npm start
+# Start the Node.js server
+echo "Starting Node server..."
+node server.js

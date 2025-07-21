@@ -15,6 +15,9 @@ RUN apt-get update && \
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
+# Pull llama2-uncensored model
+RUN /root/.ollama/bin/ollama pull llama2-uncensored
+
 # Set working directory
 WORKDIR /app
 

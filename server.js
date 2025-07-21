@@ -37,7 +37,7 @@ app.post("/api/translate", async (req, res) => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "llama3",
+        model: "llama2-uncensored",
         messages: [{ role: "user", content: prompt }]
       })
     });
