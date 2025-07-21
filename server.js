@@ -16,6 +16,7 @@ const apiKey = process.env.OPENROUTER_API_KEY || "fallback-or-undefined";
 if (!apiKey) {
   console.error("❌ OPENROUTER_API_KEY not found!");
 }
+console.log(apiKey);
 
 app.use(cors());
 app.use(express.json());
