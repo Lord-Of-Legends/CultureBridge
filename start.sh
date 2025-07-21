@@ -9,7 +9,7 @@ until curl -s http://localhost:11434 > /dev/null; do
   sleep 1
 done
 
-# Check if model is already pulled
+# Pull model only if not already pulled
 if ! ollama list | grep -q "llama2-uncensored"; then
   echo "Pulling llama2-uncensored model..."
   ollama pull llama2-uncensored
