@@ -12,6 +12,11 @@ const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const apiKey = process.env.OPENROUTER_API_KEY || "fallback-or-undefined";
+if (!apiKey) {
+  console.error("❌ OPENROUTER_API_KEY not found!");
+}
+
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
@@ -32,7 +37,7 @@ app.post("/api/translate", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
+        "Authorization": "Bearer ${apiKey}"
       },
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
