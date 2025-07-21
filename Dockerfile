@@ -16,16 +16,16 @@ RUN apt-get update && \
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
 # Pull llama2-uncensored model
-RUN /root/.ollama/bin/ollama pull llama2-uncensored
+RUN ollama pull llama2-uncensored
 
 # Set working directory
 WORKDIR /app
 
-# Copy and install dependencies
+# Copy package files and install deps
 COPY package*.json ./
 RUN npm install
 
-# Copy all other files
+# Copy rest of the app files
 COPY . .
 
 # Add startup script
@@ -35,5 +35,5 @@ RUN chmod +x /start.sh
 # Expose ports
 EXPOSE 11434 5000
 
-# Start Ollama and the app
+# Start everything
 CMD ["/start.sh"]
