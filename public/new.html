@@ -379,11 +379,7 @@
       }, 158);
 
       try {
-<<<<<<< HEAD
         const res = await fetch('https://culturebridge.onrender.com/api/translate', {
-=======
-        const res = await fetch('/api/translate', {
->>>>>>> 7560808dda6b5a26747f16483fbd5eb113e6297e
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, direction: mode === 'genz' ? 'toGenZ' : 'toPlain' })
