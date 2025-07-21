@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Start ollama in the background
+# Start Ollama in background
 ollama serve &
 
-# Wait a bit for ollama to be ready
+# Wait for it to start
 sleep 5
 
-# Start your Node.js server
+# Start Node.js app
 npm start
