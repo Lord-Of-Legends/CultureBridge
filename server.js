@@ -57,6 +57,10 @@ app.post("/api/translate", async (req, res) => {
   }
 });
 
+app.get("/health", (req, res) => {
+  res.send("OK");
+});
+
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "new.html"));
 });

@@ -1,14 +1,13 @@
 #!/bin/bash
-set -e
 
-# Start Ollama server
+echo "🚀 Starting Ollama server..."
 ollama serve &
 
-# Wait for Ollama to become responsive
-until curl -s http://localhost:11434 > /dev/null; do
-  echo "Waiting for Ollama..."
-  sleep 1
-done
+# Give Ollama a few seconds to start
+sleep 5
 
-# Start Node.js server
+echo "⬇️ Pulling llama2-uncensored model..."
+ollama pull llama2-uncensored
+
+echo "🌐 Starting Node server..."
 node server.js

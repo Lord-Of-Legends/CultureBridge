@@ -15,29 +15,21 @@ RUN apt-get update && \
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Add Ollama to PATH
-ENV PATH="/root/.ollama/bin:$PATH"
-
-# Start Ollama server in background and preload model
-RUN ollama serve & \
-    sleep 3 && \
-    ollama pull llama2-uncensored || ollama pull llama2:7b-chat
-
 # Set working directory
 WORKDIR /app
 
-# Copy dependency definitions and install
+# Copy dependencies and install
 COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the app
+# Copy all other files
 COPY . .
 
-# Make sure start.sh is executable
+# Make the start script executable
 RUN chmod +x /app/start.sh
 
-# Expose Ollama and app ports
+# Expose ports
 EXPOSE 11434 5000
 
-# Start script (Ollama + server)
+# Run startup script
 CMD ["/app/start.sh"]
