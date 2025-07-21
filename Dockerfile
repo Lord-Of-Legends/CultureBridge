@@ -22,15 +22,14 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copy remaining app files
+# Copy all other files
 COPY . .
 
 # Add and prepare startup script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+RUN chmod +x /app/start.sh
 
 # Expose ports
 EXPOSE 11434 5000
 
-# Start server and app
-CMD ["/start.sh"]
+# Start the app
+CMD ["/app/start.sh"]
