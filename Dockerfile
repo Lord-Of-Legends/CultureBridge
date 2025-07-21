@@ -1,7 +1,6 @@
 # Base image
 FROM ubuntu:22.04
 
-# Prevent prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies & Node.js 20
@@ -15,9 +14,6 @@ RUN apt-get update && \
 
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull LLaMA 2 model
-RUN ollama pull llama2
 
 # Set working directory
 WORKDIR /app
@@ -33,8 +29,8 @@ COPY . .
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Expose both ports (Ollama + App)
+# Expose ports
 EXPOSE 11434 5000
 
-# Start Ollama and your app
+# Start Ollama and the app
 CMD ["/start.sh"]

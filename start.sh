@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Start Ollama in the background
+# Start Ollama server in background
 ollama serve &
 
-# Wait a bit for Ollama to boot up
+# Wait for Ollama server to become ready
 sleep 5
+
+# Pull the model once server is up
+ollama pull llama2
 
 # Start your Node.js app
 npm start
