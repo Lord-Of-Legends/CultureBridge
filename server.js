@@ -15,7 +15,15 @@ const PORT = 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+<<<<<<< HEAD
 const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
+=======
+const apiKey = process.env.OPENROUTER_API_KEY || "fallback-or-undefined";
+if (!apiKey) {
+  console.error("❌ OPENROUTER_API_KEY not found!");
+}
+console.log(apiKey);
+>>>>>>> 7560808dda6b5a26747f16483fbd5eb113e6297e
 
 app.use(cors());
 app.use(express.json());
@@ -35,10 +43,21 @@ app.post("/api/translate", async (req, res) => {
   try {
     const aiResponse = await fetch("http://localhost:11434/api/chat", {
       method: "POST",
+<<<<<<< HEAD
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "llama3",
         messages: [{ role: "user", content: prompt }]
+=======
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer ${apiKey}"
+      },
+      body: JSON.stringify({
+        model: "deepseek/deepseek-r1:free",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.7
+>>>>>>> 7560808dda6b5a26747f16483fbd5eb113e6297e
       })
     });
 
