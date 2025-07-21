@@ -5,12 +5,17 @@ import fs from "fs";
 import path from "path";
 import bcrypt from 'bcrypt';
 import { fileURLToPath } from "url";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = 5000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
 
 app.use(cors());
 app.use(express.json());
@@ -24,32 +29,28 @@ app.post("/api/translate", async (req, res) => {
   }
 
   const prompt = direction === "toPlain"
-    ? `You are a translator for Gen Z language and you can translate to and from Gen Z to normal English. Act as a translator for future prompts and do not break character. Do not say any other thing apart from the translated sentence. No personal input. Translate the following from Gen Z slang to plain English only. Translate: "\n\n${text}"`
-    : `You are a translator for Gen Z language and you can translate to and from Gen Z to normal English. Act as a translator for future prompts and do not break character. Do not say any other thing apart from the translated sentence. No personal input. Translate the following from plain English to Gen Z slang only. Translate: "\n\n${text}"`;
+    ? `Translate the following from Gen Z slang to plain English:\n\n${text}`
+    : `Translate the following from plain English to Gen Z slang:\n\n${text}`;
 
   try {
-    const aiResponse = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const aiResponse = await fetch("http://localhost:11434/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer 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"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3-0324:free",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7
+        model: "llama3",
+        messages: [{ role: "user", content: prompt }]
       })
     });
+
 
     const aiData = await aiResponse.json();
 
     console.log("AI response:", aiData);
 
-    const result = aiData?.choices?.[0]?.message?.content?.trim();
+    const result = aiData?.[0]?.generated_text?.replace(prompt, '').trim();
     if (!result) {
-      return res.status(500).json({ error: "No valid response from AI" });
+      return res.status(500).json({ error: "No valid response from Hugging Face" });
     }
-
 
     res.json({ translatedText: result });
   } catch (err) {
@@ -63,5 +64,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running at http://0.0.0.0:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });

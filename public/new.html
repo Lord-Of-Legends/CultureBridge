@@ -286,7 +286,6 @@
         return;
       }
 
-      // Build weights map
       const buildWeightsMap = (data) => {
         return data.reduce((map, entry) => {
           if (entry.word) map[entry.word.toLowerCase()] = entry.weight || 1;
@@ -375,7 +374,7 @@
       }, 158);
 
       try {
-        const res = await fetch('http://localhost:5000/api/translate', {
+        const res = await fetch('https://culturebridge.onrender.com/api/translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, direction: mode === 'genz' ? 'toGenZ' : 'toPlain' })
