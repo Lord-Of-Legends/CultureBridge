@@ -1,8 +1,8 @@
 {
   "name": "culturebridge-server",
   "version": "1.0.0",
-  "description": "Server for CultureBridge with user authentication and SQLite support",
-  "main": "oldserver.js",
+  "description": "Server for CultureBridge with Ollama and Llama2",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js"
@@ -12,7 +12,6 @@
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
-    "dotnet": "^1.1.4",
     "express": "^4.18.2",
     "node-fetch": "^3.3.2",
     "sqlite": "^4.1.2",
