@@ -1,23 +1,20 @@
 #!/bin/bash
-echo "🚀 Starting Ollama server..."
+set -e
 
-# Start Ollama in the background
-ollama serve &
+# Start Ollama server on 0.0.0.0 in background
+ollama serve --host 0.0.0.0 &
 OLLAMA_PID=$!
 
-# Wait for Ollama to be ready
-echo "⏳ Waiting for Ollama to become ready..."
-until curl -s http://localhost:11434 | grep -q '"models"'; do
+# Wait for Ollama to be available
+echo "Waiting for Ollama..."
+until curl -s http://localhost:11434 > /dev/null; do
   sleep 1
 done
+echo "Ollama is ready."
 
-echo "✅ Ollama is ready. Pulling model..."
+# Pull your model
+ollama pull llama2-uncensored
 
-# Pull model if not already pulled
-ollama list | grep -q "llama2-uncensored" || ollama pull georgesung/llama2-uncensored
-
-echo "✅ Model is ready."
-
-# Start your Node.js server
-echo "🚀 Launching Node.js server..."
+# Start Node.js server (must bind to 0.0.0.0)
+echo "Starting Node server..."
 node server.js
