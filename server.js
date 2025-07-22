@@ -26,31 +26,23 @@ app.post("/api/translate", async (req, res) => {
     return res.status(400).json({ error: "Missing text or direction" });
   }
 
-  const prompt =
-    direction === "toPlain"
-      ? `Translate the following from Gen Z slang to plain English:\n\n${text}`
-      : `Translate the following from plain English to Gen Z slang:\n\n${text}`;
+  const prompt = direction === "toPlain"
+    ? `You are a translator for Gen Z language and you can translate to and from Gen Z to normal English. Act as a translator for future prompts and do not break character. Do not say any other thing apart from the translated sentence. No personal input. Translate the following from Gen Z slang to plain English only. Translate: "\n\n${text}"`
+    : `You are a translator for Gen Z language and you can translate to and from Gen Z to normal English. Act as a translator for future prompts and do not break character. Do not say any other thing apart from the translated sentence. No personal input. Translate the following from plain English to Gen Z slang only. Translate: "\n\n${text}"`;
 
   try {
-    const aiResponse = await fetch("http://localhost:11434/api/chat", {
+    const aiResponse = await fetch("http://localhost:11434/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "llama2-uncensored",
-        messages: [{ role: "user", content: prompt }]
-      })
+        prompt: prompt,
+        stream: false,
+      }),
     });
 
     const aiData = await aiResponse.json();
-
-    console.log("AI response:", aiData);
-
-    const result = aiData?.message?.content?.trim();
-    if (!result) {
-      return res.status(500).json({ error: "No valid response from model" });
-    }
-
-    res.json({ translatedText: result });
+    res.json({ translatedText: aiData.response.trim() });
   } catch (err) {
     console.error("Backend error:", err.message);
     res.status(500).json({ error: "Translation failed" });

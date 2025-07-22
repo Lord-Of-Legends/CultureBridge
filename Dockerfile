@@ -1,24 +1,38 @@
-# Use official Node.js image
-FROM node:20
+# Base image
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies & Node.js 20
+RUN apt-get update && \
+    apt-get remove -y nodejs libnode-dev && \
+    apt-get install -y curl gnupg ca-certificates build-essential git && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest && \
+    apt-get clean
 
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Create app directory
+# Pull the llama2-uncensored model at runtime
+# Note: We'll do this in start.sh to avoid Render build failures
+
+# Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy app source
+# Copy all other files
 COPY . .
 
-# Ensure start.sh is executable
-RUN chmod +x ./start.sh
+# Make the startup script executable
+RUN chmod +x /app/start.sh
 
-# Expose port
-EXPOSE 5000
+# Expose dynamic port for Render
+EXPOSE ${PORT}
 
-# Start script
-CMD ["./start.sh"]
+# Start Ollama and your app
+CMD ["/app/start.sh"]

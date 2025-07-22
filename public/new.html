@@ -86,7 +86,8 @@
   <button onclick="clearHistory()" class="action-button history" style="margin-top: 20px;">Clear History</button>
 
   <div class="news-feed">
-    <h3 id="news-page-label">Dictionary</h3>
+    <h3>Dictionary</h3>
+    <h3 id="news-page-label">[PAGE PLACEHOLDER]</h3>
     
     <div id="news-controls" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
       <button onclick="changeNewsPage('prev')" class="action-button">⬅ Prev</button>
@@ -379,7 +380,7 @@
       }, 158);
 
       try {
-        const res = await fetch('https://culturebridge.onrender.com/api/translate', {
+        const res = await fetch('/api/translate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text, direction: mode === 'genz' ? 'toGenZ' : 'toPlain' })
