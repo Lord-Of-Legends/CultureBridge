@@ -1,34 +1,24 @@
-# Use Ubuntu base image
-FROM ubuntu:22.04
+# Base image
+FROM node:20
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Set working directory
+WORKDIR /app
 
-# Install dependencies and Node.js 20
-RUN apt-get update && \
-    apt-get install -y curl gnupg ca-certificates build-essential git && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g npm@latest && \
-    apt-get clean
+# Copy package files & install dependencies
+COPY package*.json ./
+RUN npm install
 
 # Install Ollama
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Create app directory
-WORKDIR /app
-
-# Copy package.json and install node dependencies
-COPY package*.json ./
-RUN npm install
-
-# Copy remaining files
+# Copy source code
 COPY . .
 
-# Make start script executable
+# Ensure start.sh is executable
 RUN chmod +x /app/start.sh
 
-# Expose required ports (Ollama + Express)
-EXPOSE 11434 10000
+# Expose ports for Render
+EXPOSE 10000 11434
 
-# Start script
+# Start Ollama and the app
 CMD ["/app/start.sh"]

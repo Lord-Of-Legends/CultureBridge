@@ -1,16 +1,25 @@
 #!/bin/bash
 
-# Start Ollama server in background
+echo "🚀 Starting Ollama server..."
 ollama serve &
 
-# Wait until Ollama API is ready
-echo "Waiting for Ollama to start..."
+echo "⏳ Waiting for Ollama server to be ready..."
 until curl -s http://localhost:11434 > /dev/null; do
+  echo "🔁 Still waiting for Ollama..."
   sleep 1
 done
+echo "✅ Ollama server is up."
 
-# Pull the model if not present
-curl -X POST http://localhost:11434/api/pull -d '{"name":"llama2-uncensored"}'
+# Only pull if not already pulled
+if ! ollama list | grep -q "llama2-uncensored"; then
+  echo "⬇️ Pulling model llama2-uncensored..."
+  curl -X POST http://localhost:11434/api/pull -d '{"name":"llama2-uncensored"}'
+else
+  echo "📦 Model llama2-uncensored already available."
+fi
 
-# Start the Node server
+echo "⌛ Waiting a moment to make sure model loads..."
+sleep 2
+
+echo "🚀 Starting Node.js app..."
 node server.js
